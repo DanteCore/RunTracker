@@ -2,10 +2,14 @@ package com.bignerdranch.RunTracker.db;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.CursorWrapper;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
 import com.bignerdranch.RunTracker.Run;
+
+import java.util.Date;
 
 /**
  * Created by badgateway on 11.05.14.
@@ -16,6 +20,7 @@ public class RunDatabaseHelper extends SQLiteOpenHelper {
     private static final int VERSION = 1;
 
     private static final String TABLE_RUN = "run";
+    private static final String COLUMN_RUN_ID = "_id";
     private static final String COLUMN_RUN_START_DATE = "start_date";
 
     private static final String TABLE_LOCATION = "location";
@@ -61,5 +66,36 @@ public class RunDatabaseHelper extends SQLiteOpenHelper {
         cv.put(COLUMN_LOCATION_PROVIDER, location.getProvider());
         cv.put(COLUMN_LOCATION_RUN_ID, runId);
         return getWritableDatabase().insert(TABLE_LOCATION, null, cv);
+    }
+
+    public RunCursor queryRuns() {
+        Cursor wrapper = getReadableDatabase().query(TABLE_RUN,
+                null, null, null, null, null, COLUMN_RUN_START_DATE);
+        return new RunCursor(wrapper);
+    }
+
+
+    public static class RunCursor extends CursorWrapper {
+
+        /**
+         * Creates a cursor wrapper.
+         *
+         * @param cursor The underlying cursor to wrap.
+         */
+        public RunCursor(Cursor cursor) {
+            super(cursor);
+        }
+
+        public Run getRun() {
+            if (isBeforeFirst() || isAfterLast()) {
+                return null;
+            }
+            Run run = new Run();
+            long runId = getLong(getColumnIndex(COLUMN_RUN_ID));
+            run.setId(runId);
+            long startDate = getLong(getColumnIndex(COLUMN_RUN_START_DATE));
+            run.setStartDate(new Date(startDate));
+            return run;
+        }
     }
 }

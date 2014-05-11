@@ -29,6 +29,8 @@ public class RunManager {
     private SharedPreferences mPrefs;
     private long mCurrentRunId;
 
+
+
     private RunManager(Context appContext) {
         mAppContext = appContext;
         mLocationManager = (LocationManager) mAppContext
@@ -38,6 +40,8 @@ public class RunManager {
         mCurrentRunId = mPrefs.getLong(PREF_CURRENT_RUN_ID, -1);
     }
 
+
+
     public static RunManager get(Context context) {
 
         if (sRunManager == null) {
@@ -46,11 +50,15 @@ public class RunManager {
         return sRunManager;
     }
 
+
+
     private PendingIntent getLocationPendingIntent(boolean shouldCreate) {
         Intent broadcast = new Intent(ACTION_LOCATION);
         int flags = shouldCreate ? 0 : PendingIntent.FLAG_NO_CREATE;
         return PendingIntent.getBroadcast(mAppContext, 0, broadcast,flags);
     }
+
+
 
     public void startLocationUpdates() {
         String provider = LocationManager.GPS_PROVIDER;
@@ -65,11 +73,17 @@ public class RunManager {
         mLocationManager.requestLocationUpdates(provider, 0, 0, pi);
     }
 
+
+
+
     private void broadcastLocation(Location location) {
         Intent broadcast = new Intent(ACTION_LOCATION);
         broadcast.putExtra(LocationManager.KEY_LOCATION_CHANGED, location);
         mAppContext.sendBroadcast(broadcast);
     }
+
+
+
 
     public void stopLocationUpdates() {
         PendingIntent pi = getLocationPendingIntent(false);
@@ -78,9 +92,14 @@ public class RunManager {
             pi.cancel();
         }
     }
+
+
+
     public boolean isTrackingRun() {
         return getLocationPendingIntent(false) != null;
     }
+
+
 
 
     public Run startNewRun() {
@@ -89,11 +108,15 @@ public class RunManager {
         return run;
     }
 
+
+
     public void startTrackingRun(Run run) {
         mCurrentRunId = run.getId();
         mPrefs.edit().putLong(PREF_CURRENT_RUN_ID, mCurrentRunId).commit();
         startLocationUpdates();
     }
+
+
 
     public void stopRain() {
         stopLocationUpdates();
@@ -101,11 +124,21 @@ public class RunManager {
         mPrefs.edit().remove(PREF_CURRENT_RUN_ID).commit();
     }
 
+
+
     private Run insertRun() {
         Run run = new Run();
         run.setId(mHelper.insertRun(run));
         return run;
     }
+
+
+
+    public RunDatabaseHelper.RunCursor queryRuns() {
+        return mHelper.queryRuns();
+    }
+
+
 
     public void insetrLocation(Location location) {
         if (mCurrentRunId != -1) {
