@@ -20,7 +20,7 @@
         </activity>
 
         
-        <receiver android:name=".LocationReceiver" android:exported="false">
+        <receiver android:name=".TrackingLocationReceiver" android:exported="false">
             <intent-filter>
                 <action android:name="com.bignerdranch.RunTracker.ACTION_LOCATION"/>
             </intent-filter>
